@@ -1,0 +1,18 @@
+import numpy as np
+from random import seed
+from random import randint
+
+st = "bxqrpjnlofignlyz"
+i = np.array([ord(c) for c in st])
+np.random.seed(74)
+key =  np.random.randint(low = 0, high = 10, size = i.size)
+g = 0
+for f in i:
+    i[g] -= key[g]
+    g+=1
+g = 0
+s = []
+for d in i:
+    s.append(str(chr(i[g])))
+    g+=1
+print(*s, sep = "")
