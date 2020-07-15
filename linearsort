@@ -1,0 +1,57 @@
+import java.util.*;
+public class evidemce {
+    public static void main(String[] args) {
+        Random random = new Random();
+
+        int runs = Integer.parseInt(args[0]);
+        int size = Integer.parseInt(args[1]);
+        int bound = Integer.parseInt(args[2]);
+        int[] tosort = new int[size];
+        long[] quicksorttime  = new long[runs];
+        System.out.println("QuickSort Timing Runs");
+        for(int i = 0; i<runs; i++){
+            for(int j = 0; j<size; j++){
+                tosort[j] = random.nextInt(bound);
+            }
+            long start = System.nanoTime();
+            Arrays.sort(tosort);
+            long stop = System.nanoTime();
+            quicksorttime[i]= stop-start;
+            double a = stop-start;
+            System.out.println("Run "+i+": "+a/1000000+" ms");
+        }
+        long[] mysorttime  = new long[runs];
+        System.out.println("MySort Timing Runs");
+        for(int i = 0; i<runs; i++){
+            for(int j = 0; j<size; j++){
+                tosort[j] = random.nextInt(bound);
+            }
+            long start = System.nanoTime();
+            int[] tracker = new int[bound];
+            List<Integer> sorted = new ArrayList<Integer>();
+            for(int g: tosort){
+                tracker[g] = tracker[g]+1;
+            }
+            for(int s=0; s<bound; s++){
+                for(int k=0; k<tracker[s];k++){
+                    sorted.add(s);
+                }
+            }
+            long stop = System.nanoTime();
+            mysorttime[i]= stop-start;
+            double a = stop-start;
+            System.out.println("Run "+i+": "+a/1000000+" ms");
+        }
+        double avg1 = 0.0;
+        for(long t:quicksorttime){
+            avg1+=t;
+        }
+        double avg2 = 0.0;
+        for(long t:mysorttime){
+            avg2+=t;
+        }
+        System.out.println("Quick Sort Time in ms: "+avg1/(runs*1000000));
+        System.out.println("My Sort Time in ms: "+avg2/(runs*1000000));
+    }
+
+}
